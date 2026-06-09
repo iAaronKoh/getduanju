@@ -1693,7 +1693,7 @@
             async loadData() {
                 try {
                     // 外置JSON方式加载数据
-                    const response = await fetch('duanju2_data.json');
+                    const response = await fetch('https://iaaronkoh.github.io/getduanju/output/duanju2_data_latest.json');
                     if (!response.ok) throw new Error('加载数据失败');
                     this.data = await response.json();
                     this.filteredData = [...this.data];
