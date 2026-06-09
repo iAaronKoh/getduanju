@@ -11,7 +11,7 @@ on:
       max_per_category:
         description: '每类抓取数量'
         required: false
-        default: '20'
+        default: '100'
       delay:
         description: '请求延迟(秒)'
         required: false
