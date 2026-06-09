@@ -1,0 +1,65 @@
+name: 短剧数据自动抓取
+
+on:
+  # 每天北京时间早上6点执行（UTC 22:00）
+  schedule:
+    - cron: '0 22 * * *'
+  
+  # 支持手动触发
+  workflow_dispatch:
+    inputs:
+      max_per_category:
+        description: '每类抓取数量'
+        required: false
+        default: '20'
+      delay:
+        description: '请求延迟(秒)'
+        required: false
+        default: '3'
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: 安装依赖
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          # 验证 curl_cffi 是否安装成功
+          python -c "from curl_cffi import requests; print('curl_cffi OK')"
+      
+      - name: 执行抓取
+        env:
+          MAX_PER_CATEGORY: ${{ github.event.inputs.max_per_category || '20' }}
+          DELAY: ${{ github.event.inputs.delay || '3' }}
+          OUTPUT_DIR: output
+        run: |
+          mkdir -p output
+          python scrape_duanju2.py
+      
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: duanju-data-${{ github.run_id }}
+          path: output/
+          retention-days: 30
+      
+      - name: 提交数据到仓库
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add output/
+          git diff --staged --quiet || git commit -m "update: 短剧数据 $(date +%Y-%m-%d)"
+          git push
