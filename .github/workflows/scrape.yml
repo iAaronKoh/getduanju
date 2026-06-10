@@ -42,7 +42,7 @@ jobs:
       
       - name: 执行抓取
         env:
-          MAX_PER_CATEGORY: ${{ github.event.inputs.max_per_category || '20' }}
+          MAX_PER_CATEGORY: ${{ github.event.inputs.max_per_category || '100' }}
           DELAY: ${{ github.event.inputs.delay || '3' }}
           OUTPUT_DIR: output
         run: |
